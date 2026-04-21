@@ -41,7 +41,13 @@ public class ImageToBase64SmartService extends AppianSmartService {
                 new IllegalArgumentException("A valid Document ID is required.")).build();
         }
         try {
-            fileName = contentService.getContent(documentId).getName();
+            com.appiancorp.suiteapi.content.Content doc = contentService.getContent(documentId);
+            fileName = doc.getName();
+
+            if (doc.getSize() != null && doc.getSize() > 100 * 1024 * 1024) {
+                throw new SmartServiceException.Builder(getClass(),
+                    new IllegalArgumentException("File size exceeds 100MB limit.")).build();
+            }
 
             try (InputStream is = contentService.getDocumentInputStream(documentId);
                  ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
@@ -59,7 +65,9 @@ public class ImageToBase64SmartService extends AppianSmartService {
 
     @Input(required = Required.ALWAYS)
     @Name("documentId")
-    public void setDocumentId(Long documentId) { this.documentId = documentId; }
+    public void setDocumentId(Integer documentId) {
+        if (documentId != null) this.documentId = documentId.longValue();
+    }
 
     @Name("base64Output")
     public String getBase64Output() { return base64Output; }
