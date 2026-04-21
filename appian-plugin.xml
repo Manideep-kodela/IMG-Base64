@@ -1,13 +1,13 @@
-<appian-plugin key="com.appiancs.plugins.base64" name="Base64 Plugin" version="1.0.0">
+<appian-plugin key="com.techtammina.plugins.imagetobase64" name="Image to Base64" version="1.0.0">
 
   <plugin-info>
-    <description>Converts documents to Base64 encoded string</description>
-    <vendor name="AppianCS" url="http://www.appian.com" />
+    <description>Converts an Appian document to a Base64 encoded string</description>
+    <vendor name="TechTammina" url="https://www.techtammina.com" />
     <version>1.0.0</version>
     <application-version min="24.1" />
   </plugin-info>
 
   <smart-service name="Image to Base64 Encoder" key="ImageToBase64SmartService"
-    class="com.appiancs.plugins.base64.smartservice.ImageToBase64SmartService" />
+    class="com.techtammina.plugins.imagetobase64.smartservice.ImageToBase64SmartService" />
 
 </appian-plugin>

@@ -1,13 +1,14 @@
-package com.appiancs.plugins.base64.smartservice;
+package com.techtammina.plugins.imagetobase64.smartservice;
 
 import com.appiancorp.suiteapi.common.Name;
 import com.appiancorp.suiteapi.content.ContentService;
 import com.appiancorp.suiteapi.process.framework.AppianSmartService;
 import com.appiancorp.suiteapi.process.framework.Input;
 import com.appiancorp.suiteapi.process.framework.Required;
+import com.appiancorp.suiteapi.process.framework.SmartServiceContext;
 import com.appiancorp.suiteapi.process.exceptions.SmartServiceException;
 import com.appiancorp.suiteapi.process.palette.PaletteInfo;
-import com.appiancorp.suiteapi.process.palette.DocumentManagement;
+import com.appiancorp.suiteapi.security.external.SecureCredentialsStore;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -17,30 +18,30 @@ import java.util.Base64;
 public class ImageToBase64SmartService extends AppianSmartService {
 
     private final ContentService contentService;
+    private final SmartServiceContext smartServiceContext;
+    private final SecureCredentialsStore secureCredentialsStore;
 
     private Long documentId;
     private String base64Output;
     private String fileName;
 
-    public ImageToBase64SmartService(ContentService contentService) {
+    public ImageToBase64SmartService(
+            ContentService contentService,
+            SmartServiceContext smartServiceContext,
+            SecureCredentialsStore secureCredentialsStore) {
         this.contentService = contentService;
+        this.smartServiceContext = smartServiceContext;
+        this.secureCredentialsStore = secureCredentialsStore;
     }
 
     @Override
     public void run() throws SmartServiceException {
         if (documentId == null || documentId <= 0) {
-            throw new SmartServiceException.Builder(getClass(), new IllegalArgumentException("A valid Document ID is required.")).build();
+            throw new SmartServiceException.Builder(getClass(),
+                new IllegalArgumentException("A valid Document ID is required.")).build();
         }
         try {
-            com.appiancorp.suiteapi.content.Content doc = contentService.getContent(documentId);
-            fileName = doc.getName();
-
-            // 100MB limit check (WARNING: 100MB file = ~133MB RAM per request)
-            long maxBytes = 100 * 1024 * 1024;
-            if (doc.getSize() != null && doc.getSize() > maxBytes) {
-                throw new SmartServiceException.Builder(getClass(),
-                    new IllegalArgumentException("File size exceeds 100MB limit.")).build();
-            }
+            fileName = contentService.getContent(documentId).getName();
 
             try (InputStream is = contentService.getDocumentInputStream(documentId);
                  ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
